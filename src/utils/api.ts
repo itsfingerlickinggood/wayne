@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API configuration
-const PERPLEXITY_API_KEY = import.meta.env.VITE_PERPLEXITY_API_KEY || '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';
+const PERPLEXITY_API_KEY = import.meta.env.VITE_PERPLEXITY_API_KEY;
 const FINNHUB_API_KEY = import.meta.env.VITE_FINNHUB_API_KEY || 'd0riqhhr01qumepefum0d0riqhhr01qumepefumg';
 
 // Perplexity Sonar API client
@@ -16,16 +16,21 @@ const perplexityClient = axios.create({
 // Finnhub API client
 const finnhubClient = axios.create({
   baseURL: 'https://finnhub.io/api/v1',
-  headers: {
-    'X-Finnhub-Token': FINNHUB_API_KEY,
+  params: {
+    token: FINNHUB_API_KEY, // Finnhub requires the token as a query parameter
   },
 });
 
 // Perplexity Sonar API functions
 export const analyzeSentiment = async (text: string) => {
+  if (!PERPLEXITY_API_KEY) {
+    console.warn('Perplexity API key not found, using mock data');
+    return mockSentimentAnalysis(text);
+  }
+
   try {
     const response = await perplexityClient.post('/chat/completions', {
-      model: 'sonar-medium-online',
+      model: 'mixtral-8x7b-instruct',
       messages: [
         {
           role: 'system',
@@ -36,7 +41,14 @@ export const analyzeSentiment = async (text: string) => {
           content: text,
         },
       ],
+      max_tokens: 150,
+      temperature: 0.7,
     });
+
+    if (!response.data || !response.data.choices || !response.data.choices[0]) {
+      throw new Error('Invalid response from Perplexity API');
+    }
+
     return response.data;
   } catch (error) {
     console.error('Error analyzing sentiment:', error);
@@ -60,19 +72,6 @@ const mockSentimentAnalysis = (text: string) => {
       }
     }]
   };
-};
-
-// Finnhub API functions with mock fallback
-export const getMarketNews = async () => {
-  try {
-    const response = await finnhubClient.get('/news', {
-      params: { category: 'general' }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching market news:', error);
-    return generateMockNews(30);
-  }
 };
 
 // Generate mock news data
@@ -102,29 +101,22 @@ const generateMockNews = (count: number) => {
   }));
 };
 
-export const getStockQuote = async (symbol: string) => {
+// Finnhub API functions with mock fallback
+export const getMarketNews = async () => {
   try {
-    const response = await finnhubClient.get('/quote', {
-      params: { symbol }
+    const response = await finnhubClient.get('/news', {
+      params: {
+        category: 'general'
+      }
     });
+    
+    if (!response.data || response.data.error) {
+      throw new Error('Invalid response from Finnhub API');
+    }
+    
     return response.data;
   } catch (error) {
-    console.error('Error fetching stock quote:', error);
-    return generateMockQuote(symbol);
+    console.error('Error fetching market news:', error);
+    return generateMockNews(30);
   }
-};
-
-// Generate mock stock quote
-const generateMockQuote = (symbol: string) => {
-  const basePrice = 100 + Math.random() * 900;
-  const change = (Math.random() - 0.5) * 10;
-  
-  return {
-    c: basePrice,
-    h: basePrice + Math.random() * 10,
-    l: basePrice - Math.random() * 10,
-    o: basePrice - change,
-    pc: basePrice - change,
-    t: Date.now()
-  };
 };
