@@ -46,7 +46,7 @@ const MarketNews: React.FC = () => {
                 : sentimentAnalysis.choices[0].message.content.toLowerCase().includes('negative')
                 ? 'negative'
                 : 'neutral',
-              relevance: Math.random() > 0.7 ? 95 : 85, // Simplified relevance scoring
+              relevance: Math.random() > 0.7 ? 95 : 85,
             };
           } catch (error) {
             console.error('Error analyzing sentiment:', error);
@@ -116,7 +116,7 @@ const MarketNews: React.FC = () => {
                     <div className="flex items-center space-x-3 text-xs text-gray-400">
                       <span>{item.source}</span>
                       <span>•</span>
-                      <span>{formatDate(new Date(item.datetime * 1000).toISOString())}</span>
+                      <span>{formatDate(new Date(item.datetime).toISOString())}</span>
                       <div className="flex items-center space-x-1">
                         {getSentimentIcon(item.sentiment || 'neutral')}
                         <span className="capitalize">{item.sentiment}</span>

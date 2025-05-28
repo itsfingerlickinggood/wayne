@@ -1,5 +1,5 @@
 {
-  "name": "wayne-financial-terminal",
+  "name": "gotham-financial-terminal",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -17,7 +17,10 @@
     "recharts": "^2.11.0",
     "date-fns": "^3.3.1",
     "framer-motion": "^11.0.8",
-    "axios": "^1.6.7"
+    "axios": "^1.6.7",
+    "@tanstack/react-query": "^5.24.1",
+    "d3": "^7.8.5",
+    "zustand": "^4.5.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
