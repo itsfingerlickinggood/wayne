@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API configuration
-const PERPLEXITY_API_KEY = import.meta.env.VITE_PERPLEXITY_API_KEY || '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';
+const PERPLEXITY_API_KEY = import.meta.env.VITE_PERPLEXITY_API_KEY;
 const FINNHUB_API_KEY = import.meta.env.VITE_FINNHUB_API_KEY || 'd0riqhhr01qumepefum0d0riqhhr01qumepefumg';
 
 // Perplexity Sonar API client
@@ -23,6 +23,11 @@ const finnhubClient = axios.create({
 
 // Perplexity Sonar API functions
 export const analyzeSentiment = async (text: string) => {
+  if (!PERPLEXITY_API_KEY) {
+    console.warn('Perplexity API key not found, using mock data');
+    return mockSentimentAnalysis(text);
+  }
+
   try {
     const response = await perplexityClient.post('/chat/completions', {
       model: 'mixtral-8x7b-instruct',
