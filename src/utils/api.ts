@@ -62,19 +62,6 @@ const mockSentimentAnalysis = (text: string) => {
   };
 };
 
-// Finnhub API functions with mock fallback
-export const getMarketNews = async () => {
-  try {
-    const response = await finnhubClient.get('/news', {
-      params: { category: 'general' }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching market news:', error);
-    return generateMockNews(30);
-  }
-};
-
 // Generate mock news data
 const generateMockNews = (count: number) => {
   const sources = ['Bloomberg', 'Reuters', 'Financial Times', 'Wall Street Journal', 'CNBC'];
@@ -102,29 +89,15 @@ const generateMockNews = (count: number) => {
   }));
 };
 
-export const getStockQuote = async (symbol: string) => {
+// Finnhub API functions with mock fallback
+export const getMarketNews = async () => {
   try {
-    const response = await finnhubClient.get('/quote', {
-      params: { symbol }
+    const response = await finnhubClient.get('/news', {
+      params: { category: 'general' }
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching stock quote:', error);
-    return generateMockQuote(symbol);
+    console.error('Error fetching market news:', error);
+    return generateMockNews(30);
   }
-};
-
-// Generate mock stock quote
-const generateMockQuote = (symbol: string) => {
-  const basePrice = 100 + Math.random() * 900;
-  const change = (Math.random() - 0.5) * 10;
-  
-  return {
-    c: basePrice,
-    h: basePrice + Math.random() * 10,
-    l: basePrice - Math.random() * 10,
-    o: basePrice - change,
-    pc: basePrice - change,
-    t: Date.now()
-  };
 };
