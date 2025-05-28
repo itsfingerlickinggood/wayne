@@ -25,7 +25,7 @@ const finnhubClient = axios.create({
 export const analyzeSentiment = async (text: string) => {
   try {
     const response = await perplexityClient.post('/chat/completions', {
-      model: 'mixtral-8x7b-instruct', // Using a more reliable model
+      model: 'mixtral-8x7b-instruct',
       messages: [
         {
           role: 'system',
@@ -37,7 +37,13 @@ export const analyzeSentiment = async (text: string) => {
         },
       ],
       max_tokens: 150,
+      temperature: 0.7,
     });
+
+    if (!response.data || !response.data.choices || !response.data.choices[0]) {
+      throw new Error('Invalid response from Perplexity API');
+    }
+
     return response.data;
   } catch (error) {
     console.error('Error analyzing sentiment:', error);
