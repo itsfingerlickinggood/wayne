@@ -16,8 +16,8 @@ const perplexityClient = axios.create({
 // Finnhub API client
 const finnhubClient = axios.create({
   baseURL: 'https://finnhub.io/api/v1',
-  headers: {
-    'X-Finnhub-Token': FINNHUB_API_KEY,
+  params: {
+    token: FINNHUB_API_KEY, // Finnhub requires the token as a query parameter
   },
 });
 
@@ -25,7 +25,7 @@ const finnhubClient = axios.create({
 export const analyzeSentiment = async (text: string) => {
   try {
     const response = await perplexityClient.post('/chat/completions', {
-      model: 'sonar-medium-online',
+      model: 'mixtral-8x7b-instruct', // Using a more reliable model
       messages: [
         {
           role: 'system',
@@ -36,6 +36,7 @@ export const analyzeSentiment = async (text: string) => {
           content: text,
         },
       ],
+      max_tokens: 150,
     });
     return response.data;
   } catch (error) {
@@ -93,8 +94,15 @@ const generateMockNews = (count: number) => {
 export const getMarketNews = async () => {
   try {
     const response = await finnhubClient.get('/news', {
-      params: { category: 'general' }
+      params: {
+        category: 'general'
+      }
     });
+    
+    if (!response.data || response.data.error) {
+      throw new Error('Invalid response from Finnhub API');
+    }
+    
     return response.data;
   } catch (error) {
     console.error('Error fetching market news:', error);
